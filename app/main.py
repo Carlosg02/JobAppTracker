@@ -1,6 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Optional
 
 app = FastAPI()
+
+class ApplicationCreate(BaseModel):
+    company: str
+    position: str
+    status: str
+
+class ApplicationUpdate(BaseModel):
+    company: Optional[str] = None
+    position: Optional[str] = None
+    status: Optional[str] = None
 
 @app.get("/")
 def root():
@@ -15,3 +27,32 @@ def about():
 @app.get("/health")
 def health():
     return {"status": "healthy"}
+
+applications = [
+        {"id": 1, "company": "Company A", "position": "Software Dev", "status": "Applied"},
+        {"id": 2, "company": "Company B", "position": "Data Analyst", "status": "Interview Scheduled"},
+        {"id": 3, "company": "Company C", "position": "Project Manager", "status": "Offer Received"}
+    ]
+
+@app.get("/applications")
+def get_applications():
+    return {"applications": applications}
+
+@app.get("/applications/{id}", status_code=200)
+def get_applications_by_id(id:int):
+    for application in applications:
+        if application["id"] == id:
+            return {"application": application}
+    raise HTTPException(status_code=404, detail="Application not found")
+
+@app.post("/applications", status_code=201)
+def create_application(application: ApplicationCreate):
+    new_id = max(app["id"] for app in applications) + 1 if applications else 1
+    new_application = {
+        "id": new_id,
+        "company": application.company,
+        "position": application.position,
+        "status": application.status
+    }
+    applications.append(new_application)
+    return{"application": new_application}
