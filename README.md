@@ -14,3 +14,6 @@ A Rest API for managing and tracking job applications.
 
 From Project Root, you can run the server with 
 - uvicorn app.main:app --reload
+
+To run the tests use
+- python -m pytest

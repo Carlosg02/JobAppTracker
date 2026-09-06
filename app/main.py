@@ -38,7 +38,7 @@ applications = [
 def get_applications():
     return {"applications": applications}
 
-@app.get("/applications/{id}", status_code=200)
+@app.get("/applications/{id}")
 def get_applications_by_id(id:int):
     for application in applications:
         if application["id"] == id:
@@ -57,7 +57,7 @@ def create_application(application: ApplicationCreate):
     applications.append(new_application)
     return{"application": new_application}
 
-@app.patch("/applications/{id}", status_code=200)
+@app.patch("/applications/{id}")
 def update_application(id:int, application: ApplicationUpdate):
     for app in applications:
         if app["id"] == id:
