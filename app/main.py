@@ -56,3 +56,16 @@ def create_application(application: ApplicationCreate):
     }
     applications.append(new_application)
     return{"application": new_application}
+
+@app.patch("/applications/{id}", status_code=200)
+def update_application(id:int, application: ApplicationUpdate):
+    for app in applications:
+        if app["id"] == id:
+            if application.company is not None:
+                app["company"]= application.company
+            if application.position is not None:
+                app["position"] = application.position
+            if application.status is not None:
+                app["status"] = application.status
+            return {"application": app}
+    raise HTTPException(status_code=404, detail="Application not found")
