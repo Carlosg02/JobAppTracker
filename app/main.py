@@ -69,3 +69,11 @@ def update_application(id:int, application: ApplicationUpdate):
                 app["status"] = application.status
             return {"application": app}
     raise HTTPException(status_code=404, detail="Application not found")
+
+@app.delete("/applications/{id}")
+def delete_application(id:int):
+    for i, app in enumerate(applications):
+        if app["id"] == id:
+            del applications[i]
+            return {"message": "Application deleted successfully"}
+    raise HTTPException(status_code=404, detail="Application not found")
