@@ -6,14 +6,10 @@ client = TestClient(main.app)
 
 @pytest.fixture
 def reset_apps():
-    main.applications[:] = [
-        {"id": 1, "company": "Company A", "position": "Software Dev", "status": "Applied"},
-        {"id": 2, "company": "Company B", "position": "Data Analyst", "status": "Interview Scheduled"},
-        {"id": 3, "company": "Company C", "position": "Project Manager", "status": "Offer Received"}
-    ]
+    main.applications[:] = main.get_default_applications()
     yield
 
-def test_get_applications(reset_apps):
+def test_get_one_application(reset_apps):
     response = client.get("/applications/1")
     data = response.json()
     application = data["application"]
@@ -59,5 +55,53 @@ def test_update_application(reset_apps):
 def test_delete_application(reset_apps):
     response = client.delete("/applications/3")
     assert response.status_code == 200
+    assert response.json() == {"message": "Application deleted successfully"}
     response = client.get("/applications/3")
     assert response.status_code == 404
+    assert response.json() == {"detail": "Application not found"}
+
+def test_create_application_missing_fields(reset_apps):
+    new_application = {
+        "company" : "Apple",
+        "status" : "Interview"
+    }
+
+    response = client.post("/applications", json=new_application)
+    assert response.status_code == 422
+
+def test_patch_application_notfound(reset_apps):
+    update = {
+            "status": "Offer Given"
+    }
+
+    response = client.patch("/applications/99", json=update)
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Application not found"}
+
+def test_delete_application_notfound(reset_apps):
+    response = client.delete("/applications/99")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Application not found"}
+
+def test_get_applications(reset_apps):
+    response = client.get("/applications")
+    data = response.json()
+    assert "applications" in data
+    applications = data["applications"]
+    assert response.status_code == 200
+    assert len(applications) == 3
+    assert applications[0]["company"] == "Company A"
+
+def test_create_application_missing_fields_not_modified(reset_apps):
+    new_application = {
+        "company" : "Apple",
+        "status" : "Interview"
+    }
+
+    response = client.post("/applications", json=new_application)
+    assert response.status_code == 422
+    response = client.get("/applications")
+    assert response.status_code == 200
+    data = response.json()
+    applications = data["applications"]
+    assert len(applications) == 3

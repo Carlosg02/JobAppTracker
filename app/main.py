@@ -28,11 +28,15 @@ def about():
 def health():
     return {"status": "healthy"}
 
-applications = [
+def get_default_applications():
+    applications = [
         {"id": 1, "company": "Company A", "position": "Software Dev", "status": "Applied"},
         {"id": 2, "company": "Company B", "position": "Data Analyst", "status": "Interview Scheduled"},
         {"id": 3, "company": "Company C", "position": "Project Manager", "status": "Offer Received"}
     ]
+    return applications
+
+applications = get_default_applications()
 
 @app.get("/applications")
 def get_applications():
